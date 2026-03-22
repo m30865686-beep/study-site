@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Study App</title>
+
+    <style>
+        body {
+            background-color: #fff0f5;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            color: #555;
+        }
+
+        h1 {
+            color: #ff69b4;
+            margin-top: 40px;
+        }
+
+        .menu {
+            margin-top: 40px;
+        }
+
+        .menu button {
+            background-color: #ffb6c1;
+            border: none;
+            padding: 12px 20px;
+            margin: 10px;
+            border-radius: 20px;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .menu button:hover {
+            background-color: #ff69b4;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Welcome to your study space ✨</h1>
+
+    
+        <div class="menu">
+    <button onclick="location.href='hg.html'">HG</button>
+    <button onclick="location.href='fr.html'">Français</button>
+    <button onclick="location.href='arabe.html'">arabic</button>
+    <button onclick="location.href='islamic.html'">Islamic</button>
+</div>
+
+<div style="margin-top:40px;">
+    <h2 style="color:#ff69b4;">📅 Agenda</h2>
+
+    <div style="
+        background:white;
+        width:320px;
+        margin:20px auto;
+        padding:15px;
+        border-radius:20px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    ">
+
+        <!-- Month Navigation -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <button onclick="changeMonth(-1)" style="border:none;background:#ffb6c1;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;">
+                ◀
+            </button>
+
+            <h3 id="monthTitle" style="margin:0;color:#ff69b4;"></h3>
+
+            <button onclick="changeMonth(1)" style="border:none;background:#ffb6c1;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;">
+                ▶
+            </button>
+        </div>
+
+        <!-- Days -->
+        <div id="calendar" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:5px;"></div>
+
+    </div>
+</div><script>
+let currentDate = new Date();
+let selectedDay = null;
+
+function renderCalendar() {
+    const calendar = document.getElementById("calendar");
+    const monthTitle = document.getElementById("monthTitle");
+
+    calendar.innerHTML = "";
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Month names
+    const monthNames = [
+        "January", "February", "March", "April",
+        "May", "June", "July", "August",
+        "September", "October", "November", "December"
+    ];
+
+    monthTitle.textContent = monthNames[month] + " " + year;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty spaces
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement("div");
+        calendar.appendChild(empty);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayBox = document.createElement("div");
+
+        dayBox.textContent = day;
+        dayBox.style.padding = "10px";
+        dayBox.style.borderRadius = "8px";
+        dayBox.style.cursor = "pointer";
+        dayBox.style.background = "#ffe4ec";
+
+        const today = new Date();
+
+        // Highlight today
+        if (
+            day === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear()
+        ) {
+            dayBox.style.background = "#ff69b4";
+            dayBox.style.color = "white";
+        }
+
+        dayBox.onclick = () => {
+            selectedDay = day;
+
+            document.querySelectorAll("#calendar div").forEach(d => {
+                if (d !== dayBox) {
+                    d.style.background = "#ffe4ec";
+                    d.style.color = "#555";
+                }
+            });
+
+            dayBox.style.background = "#ff69b4";
+            dayBox.style.color = "white";
+
+            console.log("Selected:", selectedDay, monthNames[month]);
+        };
+
+        calendar.appendChild(dayBox);
+    }
+}
+
+function changeMonth(step) {
+    currentDate.setMonth(currentDate.getMonth() + step);
+    renderCalendar();
+}
+
+// Initial load
+renderCalendar();
+</script>
+</script>
+
+</div>
+
+
+</body>
+</html>

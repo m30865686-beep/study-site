@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Study App</title>
+</head>
+
+<body style="font-family: Arial; background:#ffe6f0; text-align:center;">
+
+<h2 style="color:#ff69b4;">HG</h2>
+
+<!-- Progress -->
+<div id="circleFR" style="width:100px;height:100px;border-radius:50%;background:#ffc0cb;display:flex;align-items:center;justify-content:center;margin:20px auto;color:white;font-size:20px;">
+0%
+</div>
+
+<!-- To-Do -->
+<div style="background:white;padding:20px;width:320px;margin:20px auto;border-radius:20px;">
+    <h3>To-Do List</h3>
+
+    <input id="taskInputFR" type="text" placeholder="Add task..."
+        style="padding:10px;border-radius:10px;border:1px solid #ccc;width:70%;">
+
+    <button id="addBtn"
+        style="padding:10px;border:none;background:#ff69b4;color:white;border-radius:10px;cursor:pointer;">
+        Add
+    </button>
+
+    <ul id="taskListFR" style="list-style:none;padding:0;margin-top:15px;"></ul>
+</div>
+
+<!-- Timer -->
+<div style="background:white;padding:20px;width:320px;margin:20px auto;border-radius:20px;">
+    <h3>Timer</h3>
+
+    <input id="minutesFR" type="number" placeholder="Minutes"
+        style="padding:10px;width:100px;border-radius:10px;border:1px solid #ccc;">
+
+    <div style="margin-top:10px;">
+        <button id="startBtn" style="padding:8px;border:none;background:#ff69b4;color:white;border-radius:8px;">Start</button>
+        <button id="pauseBtn" style="padding:8px;border:none;background:#ffb6c1;color:white;border-radius:8px;">Pause</button>
+        <button id="resumeBtn" style="padding:8px;border:none;background:#ff69b4;color:white;border-radius:8px;">Resume</button>
+    </div>
+
+    <p id="timerDisplayFR" style="font-size:22px;margin-top:10px;">00:00</p>
+</div>
+
+<!-- Celebration -->
+<div id="celebration" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,192,203,0.9); justify-content:center; align-items:center; font-size:40px; color:white;">
+    🎉 You did it! 🎉
+</div>
+
+<script>
+let tasksFR = JSON.parse(localStorage.getItem("tasksFR")) || [];
+let intervalFR;
+let timeLeft = 0;
+let isPaused = false;
+
+// ---------------- TO-DO ----------------
+function renderTasksFR() {
+    const list = document.getElementById("taskListFR");
+    list.innerHTML = "";
+
+    tasksFR.forEach((task, i) => {
+        const li = document.createElement("li");
+        li.style.margin = "10px 0";
+        li.style.padding = "10px";
+        li.style.borderRadius = "12px";
+        li.style.background = "#ffe4ec";
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+
+        const left = document.createElement("div");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+
+        const span = document.createElement("span");
+        span.textContent = " " + task.text;
+        span.style.textDecoration = task.done ? "line-through" : "none";
+
+        checkbox.onchange = () => {
+            tasksFR[i].done = checkbox.checked;
+            saveTasksFR();
+        };
+
+        left.appendChild(checkbox);
+        left.appendChild(span);
+
+        const del = document.createElement("button");
+        del.textContent = "✖";
+        del.style.border = "none";
+        del.style.background = "transparent";
+        del.style.cursor = "pointer";
+
+        del.onclick = () => {
+            tasksFR.splice(i, 1);
+            saveTasksFR();
+        };
+
+        li.appendChild(left);
+        li.appendChild(del);
+        list.appendChild(li);
+    });
+
+    updateProgressFR();
+}
+
+function addTaskFR() {
+    const input = document.getElementById("taskInputFR");
+    if (input.value.trim() === "") return;
+
+    tasksFR.push({ text: input.value, done: false });
+    input.value = "";
+
+    saveTasksFR();
+}
+
+function saveTasksFR() {
+    localStorage.setItem("tasksFR", JSON.stringify(tasksFR));
+    renderTasksFR();
+}
+
+function updateProgressFR() {
+    const total = tasksFR.length;
+    const done = tasksFR.filter(t => t.done).length;
+
+    let percent = total ? Math.round((done / total) * 100) : 0;
+
+    const circle = document.getElementById("circleFR");
+    circle.textContent = percent + "%";
+
+    if (percent === 100 && total > 0) {
+        showCelebration();
+    }
+}
+
+// ---------------- TIMER ----------------
+function startTimerFR() {
+    clearInterval(intervalFR);
+    isPaused = false;
+
+    let minutes = parseInt(document.getElementById("minutesFR").value);
+    if (isNaN(minutes) || minutes <= 0) return;
+
+    timeLeft = minutes * 60;
+    runTimer();
+}
+
+function runTimer() {
+    clearInterval(intervalFR);
+
+    intervalFR = setInterval(() => {
+        if (!isPaused) {
+            let min = Math.floor(timeLeft / 60);
+            let sec = timeLeft % 60;
+
+            document.getElementById("timerDisplayFR").textContent =
+                String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+
+            timeLeft--;
+
+            if (timeLeft < 0) {
+                clearInterval(intervalFR);
+                document.getElementById("timerDisplayFR").textContent = "Done!";
+            }
+        }
+    }, 1000);
+}
+
+function pauseTimerFR() {
+    isPaused = true;
+}
+
+function resumeTimerFR() {
+    isPaused = false;
+}
+
+// ---------------- CELEBRATION ----------------
+function showCelebration() {
+    const div = document.getElementById("celebration");
+    div.style.display = "flex";
+
+    setTimeout(() => {
+        div.style.display = "none";
+    }, 3000);
+}
+
+// ---------------- BUTTONS ----------------
+document.getElementById("addBtn").onclick = addTaskFR;
+document.getElementById("startBtn").onclick = startTimerFR;
+document.getElementById("pauseBtn").onclick = pauseTimerFR;
+document.getElementById("resumeBtn").onclick = resumeTimerFR;
+
+renderTasksFR();
+</script>
+
+</body>
+</html>
